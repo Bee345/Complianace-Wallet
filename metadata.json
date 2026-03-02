@@ -1,0 +1,5 @@
+{
+  "name": "DevFlow Architect",
+  "description": "A platform for managing the full SDLC from proposal to production using Clean Architecture and RBAC.",
+  "requestFramePermissions": []
+}
