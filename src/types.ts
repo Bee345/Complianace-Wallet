@@ -1,32 +1,41 @@
 /**
- * Domain Entities, Aggregates, and Value Objects for the Street Vendor Compliance Wallet.
- * Following Clean Architecture principles.
+ * DOMAIN VALUE OBJECTS
  */
 
-// --- Domain Layer: Value Objects & Enums ---
-
-export type UserRole = 'VENDOR' | 'ADMIN' | 'OFFICIAL';
-export type RegistrationStatus = 'DRAFT' | 'SUBMITTED' | 'PENDING' | 'APPROVED' | 'REJECTED';
-export type ComplianceStatus = 'COMPLIANT' | 'WARNING' | 'NON_COMPLIANT' | 'EXPIRED';
+export type UserRole = 'VENDOR' | 'OFFICIAL' | 'ADMIN';
+export type ComplianceStatus = 'COMPLIANT' | 'PENDING' | 'EXPIRED' | 'DRAFT';
+export type RegistrationStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
 
 export interface Money {
   amount: number;
   currency: 'NGN';
 }
 
-export interface PhoneNumber {
-  countryCode: string;
-  number: string;
+export interface LgaBand {
+  id: string;
+  name: string;
+  minTurnover: number;
+  maxTurnover: number;
+  dailyTax: Money;
 }
 
-// --- Domain Layer: Entities ---
+/**
+ * DOMAIN ENTITIES
+ */
 
 export interface User {
   readonly id: string;
   readonly phoneNumber: string;
+  readonly email: string;
+  readonly username: string;
+  readonly firstName: string;
+  readonly lastName: string;
   readonly name: string;
-  readonly role: UserRole;
+  readonly dob?: string;
+  readonly state?: string;
+  readonly lga?: string;
   readonly profilePhotoUrl?: string;
+  readonly role: UserRole;
   readonly createdAt: Date;
 }
 
@@ -34,11 +43,12 @@ export interface Business {
   readonly id: string;
   readonly vendorId: string;
   readonly name: string;
-  readonly lgaId: string;
+  readonly cacRegistrationNumber?: string;
   readonly registrationStatus: RegistrationStatus;
-  readonly cacNumber?: string;
+  readonly lgaId: string;
   readonly address?: string;
   readonly businessType?: string;
+  readonly photoUrl?: string;
   readonly createdAt: Date;
 }
 
@@ -48,7 +58,7 @@ export interface TaxRecord {
   readonly date: Date;
   readonly turnover: Money;
   readonly calculatedTax: Money;
-  readonly lgaBandId: string;
+  readonly lgaBandId?: string;
   readonly isSynced: boolean;
   readonly createdAt: Date;
 }
@@ -76,7 +86,22 @@ export interface HealthPermit {
   readonly createdAt: Date;
 }
 
-// --- Domain Layer: Repository Interfaces ---
+/**
+ * AGGREGATES
+ */
+
+export interface VendorComplianceProfile {
+  vendor: User;
+  business?: Business;
+  healthPermit?: HealthPermit;
+  recentTaxRecords: TaxRecord[];
+  recentLevyRecords: LevyRecord[];
+  overallStatus: ComplianceStatus;
+}
+
+/**
+ * REPOSITORY INTERFACES (Domain Layer)
+ */
 
 export interface IVendorRepository {
   getById(id: string): Promise<User | null>;
@@ -105,17 +130,19 @@ export interface IHealthRepository {
   save(permit: HealthPermit): Promise<void>;
 }
 
-// --- Application Layer: Service Interfaces ---
+/**
+ * APPLICATION SERVICES
+ */
 
 export interface ITaxCalculatorService {
   calculate(turnover: Money, lgaId: string): Promise<{ tax: Money; bandId: string }>;
 }
 
-export interface ISyncService {
-  syncAll(): Promise<void>;
-}
-
 export interface IPidginService {
   translate(text: string): Promise<string>;
   getVoiceGuidance(screenName: string, context: string): Promise<string>;
+}
+
+export interface ISyncService {
+  syncAll(): Promise<void>;
 }

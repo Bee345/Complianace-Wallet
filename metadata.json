@@ -1,5 +1,5 @@
 {
-  "name": "DevFlow Architect",
-  "description": "A platform for managing the full SDLC from proposal to production using Clean Architecture and RBAC.",
-  "requestFramePermissions": []
+  "name": "Compliance Wallet",
+  "description": "A digital wallet and compliance tool for Nigerian street vendors to formalize businesses, log turnover, and pay levies.",
+  "requestFramePermissions": ["camera", "geolocation"]
 }
